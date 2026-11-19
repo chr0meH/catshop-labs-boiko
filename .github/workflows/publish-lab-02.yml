@@ -1,0 +1,34 @@
+name: publish-lab-02
+
+on:
+  push:
+    branches: ["lab-02", "main"]
+    paths: ["lab-02/**", ".github/workflows/publish-lab-02.yml"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r lab-02/requirements.txt -r lab-02/requirements-dev.txt
+      - run: pytest lab-02/tests -q
+
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./lab-02
+          push: true
+          tags: ghcr.io/chr0meh/catshop:${{ github.sha }}
+          labels: org.opencontainers.image.revision=${{ github.sha }}
