@@ -15,7 +15,7 @@ jobs:
           python-version: "3.12"
       - run: pip install -r lab-02/requirements.txt -r lab-02/requirements-dev.txt
       - working-directory: lab-02
-        run: pytest tests -q
+        run: python -m pytest tests -q
 
   publish:
     needs: test
